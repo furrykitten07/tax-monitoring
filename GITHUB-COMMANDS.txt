@@ -1,0 +1,33 @@
+# ========================================
+# COMMANDS UNTUK PUSH KE GITHUB
+# Jalankan satu per satu di terminal
+# ========================================
+
+# 1. Initialize Git (jika belum)
+git init
+
+# 2. Add semua file
+git add .
+
+# 3. Commit pertama
+git commit -m "Initial commit - Tax Monitoring System with Supabase"
+
+# 4. Set branch main
+git branch -M main
+
+# 5. Add remote origin (GANTI dengan repository Anda)
+git remote add origin https://github.com/USERNAME/tax-monitoring.git
+
+# 6. Push ke GitHub
+git push -u origin main
+
+# ========================================
+# CARA BUAT REPOSITORY DI GITHUB:
+# 1. Login ke https://github.com
+# 2. Klik tombol + > New repository
+# 3. Repository name: tax-monitoring
+# 4. Public atau Private (pilih sesuai kebutuhan)
+# 5. JANGAN centang "Add README" (sudah ada)
+# 6. Create repository
+# 7. Copy URL repository yang muncul
+# ======================================== 
