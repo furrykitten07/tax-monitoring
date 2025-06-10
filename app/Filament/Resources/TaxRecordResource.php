@@ -16,7 +16,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
-use App\Exports\TaxRecordExport;
+use App\Filament\Exports\TaxRecordExporter;
+use Filament\Notifications\Notification;
 
 class TaxRecordResource extends Resource
 {
@@ -220,6 +221,12 @@ class TaxRecordResource extends Resource
                                 fn (Builder $query, $year): Builder => $query->whereYear('date', $year),
                             );
                     }),
+                SelectFilter::make('invoice_type')
+                    ->options([
+                        '020' => 'Instansi (020)',
+                        '040' => 'Swasta (040)',
+                    ])
+                    ->label('Tipe Faktur'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
@@ -228,11 +235,6 @@ class TaxRecordResource extends Resource
                     ->label('Ubah'),
                 Tables\Actions\DeleteAction::make()
                     ->label('Hapus'),
-                Action::make('export_excel')
-                    ->label('Export Excel')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->url(fn ($record) => route('tax-records.export', $record))
-                    ->openUrlInNewTab(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -241,17 +243,15 @@ class TaxRecordResource extends Resource
                 ]),
             ])
             ->headerActions([
-                ExportAction::make()
-                    ->exporter(TaxRecordExport::class),
-                Action::make('export_filtered')
-                    ->label('Export Excel dengan Filter')
-                    ->icon('heroicon-o-document-arrow-down')
+                Action::make('export_excel')
+                    ->label('Export ke Excel')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
                     ->form([
                         Forms\Components\Select::make('month')
-                            ->required()
                             ->options([
                                 '01' => 'Januari',
-                                '02' => 'Februari', 
+                                '02' => 'Februari',
                                 '03' => 'Maret',
                                 '04' => 'April',
                                 '05' => 'Mei',
@@ -263,22 +263,33 @@ class TaxRecordResource extends Resource
                                 '11' => 'November',
                                 '12' => 'Desember',
                             ])
-                            ->default(date('m'))
-                            ->label('Bulan'),
+                            ->label('Bulan (opsional)')
+                            ->placeholder('Pilih bulan'),
                         Forms\Components\Select::make('year')
-                            ->required()
                             ->options([
                                 '2023' => '2023',
-                                '2024' => '2024', 
+                                '2024' => '2024',
                                 '2025' => '2025',
-                                '2026' => '2026',
                             ])
                             ->default(date('Y'))
+                            ->required()
                             ->label('Tahun'),
+                        Forms\Components\Select::make('invoice_type')
+                            ->options([
+                                '020' => 'Instansi (020)',
+                                '040' => 'Swasta (040)',
+                            ])
+                            ->label('Tipe Faktur (opsional)')
+                            ->placeholder('Semua tipe faktur'),
                     ])
                     ->action(function (array $data) {
-                        return redirect()->route('tax-records.export-filtered', $data);
-                    }),
+                        $url = route('tax-records.export', array_filter($data));
+                        return redirect($url);
+                    })
+                    ->modalHeading('Filter Export Excel')
+                    ->modalDescription('Pilih filter untuk export data pajak ke Excel')
+                    ->modalSubmitActionLabel('Export')
+                    ->modalCancelActionLabel('Batal'),
             ]);
     }
 
