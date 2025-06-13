@@ -36,7 +36,7 @@ services:
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     ports:
-      - "3307:3306"
+      - "3309:3306"
     volumes:
       - ./docker/mysql:/var/lib/mysql
     networks:
